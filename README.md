@@ -1,13 +1,12 @@
 # cs332-assign
-cs332 assign repo
+repo for Software Design[cs332] course in postech, 2024 snd semester
 
 author : Sunho Cha
-
-description : repo for Software Design[cs332] course in postech, 2024 snd semester
 
 POVIS ID : carprefer
 
 start date : 2024.9.6
+
 
 ## initial setting
 OS : Windows 11
