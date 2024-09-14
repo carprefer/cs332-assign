@@ -24,4 +24,24 @@ class BalanceSuite extends FunSuite {
   test("balance: counting is not enough") {
     assert(!balance("())(".toList))
   }
+
+  test("balance: test 1") {
+    assert(!balance(")".toList))
+  }
+
+  test("balance: test 2") {
+    assert(balance("hello".toList))
+  }
+
+  test("balance: test 3") {
+    assert(!balance(")(".toList))
+  }
+
+  test("balance: test 4") {
+    assert(!balance("(((()))".toList))
+  }
+
+  test("balance: test 5") {
+    assert(balance("()(())".toList))
+  }
 }
