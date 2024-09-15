@@ -77,6 +77,10 @@ class FunSetSuite extends FunSuite {
     val s1 = singletonSet(1)
     val s2 = singletonSet(2)
     val s3 = singletonSet(3)
+
+    val s12 = union(s1, s2)
+    val s13 = union(s1, s3)
+    val s123 = union(s12, s3)
   }
 
   /**
@@ -110,5 +114,132 @@ class FunSetSuite extends FunSuite {
     }
   }
 
+  // my own tests ///////////////////////////////
+
+  test("union contains same elements") {
+    new TestSets {
+      val s = union(s12, s13)
+      assert(contains(s, 1), "Union 1")
+      assert(contains(s, 2), "Union 2")
+      assert(contains(s, 3), "Union 3")
+    }
+  }
+
+  test("intersect contains no element") {
+    new TestSets {
+      val s = intersect(s2, s13)
+      assert(!contains(s, 1), "Intersect 1")
+      assert(!contains(s, 2), "Intersect 2")
+      assert(!contains(s, 3), "Intersect 3")
+    }
+  }
+
+  test("intersect contains same elements") {
+    new TestSets {
+      val s = intersect(s12, s13)
+      assert(contains(s, 1), "Intersect 1")
+      assert(!contains(s, 2), "Intersect 2")
+      assert(!contains(s, 3), "Intersect 3")
+    }
+  }
+
+  test("diff contains no element") {
+    new TestSets {
+      val s = diff(s1, s13)
+      assert(!contains(s, 1), "Diff 1")
+      assert(!contains(s, 2), "Diff 2")
+      assert(!contains(s, 3), "Diff 3")
+    }
+  }
+
+  test("diff contains some elements") {
+    new TestSets {
+      val s = diff(s13, s1)
+      assert(!contains(s, 1), "Diff 1")
+      assert(!contains(s, 2), "Diff 2")
+      assert(contains(s, 3), "Diff 3")
+    }
+  }
+
+  test("diff contains all elements of source set") {
+    new TestSets {
+      val s = diff(s13, s2)
+      assert(contains(s, 1), "Diff 1")
+      assert(!contains(s, 2), "Diff 2")
+      assert(contains(s, 3), "Diff 3")
+    }
+  }
+
+  test("filter: x > 1") {
+    new TestSets {
+      val s = filter(s123, x => x > 1)
+      assert(!contains(s, 1), "Filter 1")
+      assert(contains(s, 2), "Filter 2")
+      assert(contains(s, 3), "Filter 3")
+    }
+  }
+
+  test("filter: x > 0") {
+    new TestSets {
+      val s = filter(s123, x => x > 0)
+      assert(contains(s, 1), "Filter 1")
+      assert(contains(s, 2), "Filter 2")
+      assert(contains(s, 3), "Filter 3")
+    }
+  }
+
+  test("filter: x * x == 0") {
+    new TestSets {
+      val s = filter(s123, x => x * x == 0)
+      assert(!contains(s, 1), "Filter 1")
+      assert(!contains(s, 2), "Filter 2")
+      assert(!contains(s, 3), "Filter 3")
+    }
+  }
+
+  test("forall return false") {
+    new TestSets {
+      assert(!forall(s123, x => x > 1), "Forall false")
+    }
+  }
+
+  test("forall return true") {
+    new TestSets {
+      assert(forall(s123, x => x * x > 0), "Forall true")
+    }
+  }
+
+  test("exists return false") {
+    new TestSets {
+      assert(!exists(s123, x => x < 0), "Exists false")
+    }
+  }
+
+  test("exists return true") {
+    new TestSets {
+      assert(exists(s123, x => x == 3), "Exists true")
+    }
+  }
+
+  test("map contains square of original set") {
+    new TestSets {
+      val s = map(s123, x => x * x)
+      assert(contains(s, 1), "Map 1")
+      assert(contains(s, 4), "Map 4")
+      assert(contains(s, 9), "Map 9")
+      assert(!contains(s, 2), "Map 2")
+      assert(!contains(s, 3), "Map 3")
+    }
+  }
+
+  test("map contains only one element") {
+    new TestSets {
+      val s = map(s123, x => 0)
+      assert(contains(s, 0), "Map 0")
+      assert(!contains(s, 1), "Map 1")
+      assert(!contains(s, 2), "Map 2")
+      assert(!contains(s, 3), "Map 3")
+    }
+  }
 
 }
