@@ -51,4 +51,27 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
+  test("t2 encode only") {
+    new TestTrees {
+      assert(encode(t2)("ab".toList) === List(0, 0, 0, 1))
+    }
+  }
+
+  test("t2 decode only") {
+    new TestTrees {
+      assert(decode(t2, List(0, 1)) === "b".toList)
+    }
+  }
+
+  test("t2 quick encode") {
+    new TestTrees {
+      assert(encode(t2)("abdd".toList) === quickEncode(t2)("abdd".toList))
+    }
+  }
+
+  test("t2 quick encode and decode should be identity") {
+    new TestTrees {
+      assert(decode(t2, encode(t2)("ddabaad".toList)) === "ddabaad".toList)
+    }
+  }
 }
