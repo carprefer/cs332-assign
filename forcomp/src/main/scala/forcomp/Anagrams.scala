@@ -89,11 +89,10 @@ object Anagrams {
   def combinations(occurrences: Occurrences): List[Occurrences] =
     occurrences match {
       case occurrence::next =>
-        val list =
-          for {
-            i <- (1 to occurrence._2).toList
-            combination <- combinations(next)
-          } yield (occurrence._1, i)::combination
+        val list = for {
+          i <- (1 to occurrence._2).toList
+          combination <- combinations(next)
+        } yield (occurrence._1, i)::combination
         list ++ combinations(next)
       case _ => List(List())
     }
@@ -108,12 +107,13 @@ object Anagrams {
    *  Note: the resulting value is an occurrence - meaning it is sorted
    *  and has no zero-entries.
    */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences =
+  def subtract(x: Occurrences, y: Occurrences): Occurrences = {
     y.foldLeft(x)(
       (acc, occurY) => acc.foldLeft[List[(Char, Int)]](List())(
                           (acc2, occurX) => if(occurX._1 != occurY._1) acc2:::List(occurX)
                                             else if(occurX._2 != occurY._2) acc2:::List((occurX._1, occurX._2 - occurY._2))
                                             else acc2))
+  }
 
   /** Returns a list of all anagram sentences of the given sentence.
    *
@@ -157,19 +157,37 @@ object Anagrams {
    */
   def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
     def sentenceAnagramsAux(occurrences: Occurrences): List[Sentence] = {
-      if(occurrences.isEmpty) List(List())
+      if(occurrences.isEmpty) List(Nil)
       else {
-        val combinationList = combinations(occurrences)
-        val listOfListOfSentence =
-          for {
-            combination <- combinationList
-            if combination.nonEmpty && dictionaryByOccurrences.contains(combination)
-          } yield sentenceAnagramsAux(subtract(occurrences, combination)).map(sentence => dictionaryByOccurrences(combination).map(word => word::sentence))
-          listOfListOfSentence.flatten.flatten
+        val listOf = for {
+          combination <- combinations(occurrences)
+          if combination.nonEmpty && dictionaryByOccurrences.contains(combination)
+        } yield sentenceAnagramsAux(subtract(occurrences, combination)).flatMap(sentence => dictionaryByOccurrences(combination).map(word => word::sentence))
+        listOf.flatten
       }
     }
     sentenceAnagramsAux(sentenceOccurrences(sentence))
   }
+
+  /*def sentenceAnagramsMemo(sentence: Sentence): List[Sentence] = {
+    def sentenceAnagramsAux(occurrences: Occurrences, memo: Map[Occurrences, List[Sentence]]): (List[Sentence], Map[Occurrences, List[Sentence]]) = {
+      if(occurrences.isEmpty) (List(Nil), memo)
+      else if(memo.contains(occurrences)) (memo(occurrences), memo)
+      else {
+        combinations(occurrences).foldLeft[(List[Sentence], Map[Occurrences, List[Sentence]])]((Nil, memo))
+          { case ((sentences, memo), occurrence) =>
+            if(occurrence.nonEmpty && dictionaryByOccurrences.contains(occurrence)) {
+              val (newSentences, newMemo) = sentenceAnagramsAux(subtract(occurrences, occurrence), memo)
+              val resultSentences = newSentences.flatMap(sentence =>dictionaryByOccurrences(occurrence).map(word => word::sentence))
+              val resultMemo = if(resultSentences.isEmpty) newMemo else newMemo + (occurrence -> resultSentences)
+              (resultSentences ++ sentences, resultMemo)
+            }
+            else (sentences, memo)
+          }
+      }
+    }
+    sentenceAnagramsAux(sentenceOccurrences(sentence), Map())._1
+  }*/
 }
 
 object Main extends App {
