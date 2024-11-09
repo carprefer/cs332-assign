@@ -51,11 +51,7 @@ package object nodescala {
      */
     def any[T](fs: List[Future[T]]): Future[T] = {
       val p = Promise[T]()
-      val calculator =
-        fs.map(f =>
-          f onComplete {
-            case tryValue => p.complete(tryValue)
-          })
+      val calculator = fs.map(f => f onComplete (tryValue => p.complete(tryValue)))
       p.future
     }
 
@@ -101,7 +97,7 @@ package object nodescala {
      *  depending on the current state of the `Future`.
      */
     def now: T =
-      try Await.result[T](f, Duration.MinusInf) catch {
+      try Await.result[T](f, Duration.Zero) catch {
         case e: TimeoutException => throw new NoSuchElementException()
       }
 
@@ -122,11 +118,7 @@ package object nodescala {
      *  The resulting future contains a value returned by `cont`.
      */
     def continue[S](cont: Try[T] => S): Future[S] = {
-      val p = Promise[S]()
-      f onComplete {
-        case tryValue => p.success(cont(tryValue))
-      }
-      p.future
+      f.flatMap(t => Future(cont(Try(t))))
     }
   }
 
